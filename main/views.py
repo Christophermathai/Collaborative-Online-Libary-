@@ -22,6 +22,8 @@ from nltk.corpus import stopwords
 import os
 from django.views.decorators.csrf import csrf_exempt
 
+api_key ="add your api key here"
+
 # Create your views here.
 def Home(request):
     return render(request, 'Home.html')
@@ -426,7 +428,7 @@ def summary(request):
             user = tbl_user.objects.get(pk=user_id)
         except tbl_user.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=400)
-        genai.configure(api_key="AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc")
+        genai.configure(api_key=Api_key)
         model = genai.GenerativeModel("gemini-2.0-flash")
         lang_prompt = f"Find the language associated with the given text. As the answer, provide only the language name. The text = {notes}"
         response = model.generate_content(lang_prompt)
@@ -464,7 +466,7 @@ def explain(request):
             user = tbl_user.objects.get(pk=user_id)
         except tbl_user.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=400)
-        genai.configure(api_key="AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc")
+        genai.configure(api_key=Api_key)
         model = genai.GenerativeModel("gemini-2.0-flash")
         lang_prompt = f"Find the language associated with the given text. Provide only the language name. The text = {notes}"
         response = model.generate_content(lang_prompt)
@@ -502,7 +504,7 @@ def lenght(request):
             user = tbl_user.objects.get(pk=user_id)
         except tbl_user.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=400)
-        genai.configure(api_key="AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc")
+        genai.configure(api_key=Api_key)
         model = genai.GenerativeModel("gemini-2.0-flash")
         lang_prompt = f"Find the language associated with the given text. As the answer, provide only the language name. The text = {notes}"
         response = model.generate_content(lang_prompt)
@@ -540,7 +542,7 @@ def Shorten(request):
             user = tbl_user.objects.get(pk=user_id)
         except tbl_user.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=400)
-        genai.configure(api_key="AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc")
+        genai.configure(api_key=Api_key)
         model = genai.GenerativeModel("gemini-2.0-flash")
         lang_prompt = f"Find the language associated with the given text. Provide only the language name. The text = {notes}"
         response = model.generate_content(lang_prompt)
@@ -579,7 +581,7 @@ def Style(request):
             user = tbl_user.objects.get(pk=user_id)
         except tbl_user.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=400)
-        genai.configure(api_key="AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc")
+        genai.configure(api_key=Api_key)
         model = genai.GenerativeModel("gemini-2.0-flash")
         lang_prompt = f"Find the language associated with the given text. Provide only the language name. The text = {notes}"
         response = model.generate_content(lang_prompt)
@@ -619,7 +621,7 @@ def clan(request):
             user = tbl_user.objects.get(pk=user_id)
         except tbl_user.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=400)
-        genai.configure(api_key="AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc")
+        genai.configure(api_key=Api_key)
         model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = f"Translate the following text into {style_format}. Use simpler words while maintaining the meaning: {notes}"
         response = model.generate_content(prompt)
@@ -671,8 +673,7 @@ def Microphone(request):
     recognizer = sr.Recognizer()
     microphone = sr.Microphone()
     try:
-        api_key = os.getenv('GEMINI_API_KEY', 'AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc')
-        genai.configure(api_key=api_key)
+        genai.configure(api_key=Api_key)
         model = genai.GenerativeModel("gemini-2.0-flash")
     except Exception as e:
         logger.error(f"Failed to configure Gemini API: {str(e)}")
@@ -762,7 +763,7 @@ def flashcards(request):
                 paragraphs = ""
                 for page in pages:
                     paragraphs += pytesseract.image_to_string(page, lang="eng")
-                genai.configure(api_key="AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc")
+                genai.configure(api_key=Api_key)
                 model = genai.GenerativeModel("gemini-2.0-flash")
                 text = "Summarize the text and generate 10 flashcards. Retrieve only the flash card questions and output only the questions  them as a normal string separated by ';'.", "text=", paragraphs
                 response = model.generate_content(text)
@@ -856,7 +857,7 @@ def MCQ(request):
                 paragraphs = ""
                 for page in pages:
                     paragraphs += pytesseract.image_to_string(page, lang="eng")
-                genai.configure(api_key="AIzaSyBPQtFX1UPmWRVElnikGPDx1Fu0hpmD2tc")
+                genai.configure(api_key=Api_key)
                 model = genai.GenerativeModel("gemini-2.0-flash")
                 text = "Summarize the text and generate 10 Multiple choice question. Retrieve only the Multiple choice questions and output only the questions  them as a normal string separated by ';'.", "text=", paragraphs
                 response = model.generate_content(text)
