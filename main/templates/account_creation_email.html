@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            .email-container {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f9f9f9;
+                border: 1px solid #ddd;
+            }
+            .header {
+                text-align: center;
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 0;
+            }
+            .content {
+                padding: 20px;
+                text-align: left;
+            }
+            .footer {
+                text-align: center;
+                font-size: 12px;
+                color: #777;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1>Welcome to Our Service</h1>
+            </div>
+            <div class="content">
+                <p>Hello {{ user_name }},</p>
+                <p>Thank you for creating an account with us! We're excited to have you on board.</p>
+                <p>If you have any questions, feel free to contact us at support@example.com.</p>
+            </div>
+            <div class="footer">
+                <p>&copy; 2025 Our Service. All rights reserved.</p>
+            </div>
+        </div>
+    </body>
+</html>

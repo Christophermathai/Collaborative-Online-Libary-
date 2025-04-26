@@ -1,0 +1,539 @@
+{% extends "admin/base_site.html" %}
+{% load static admin_urls %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin_custom.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+<style>
+    #top-books-container h3 {
+        color: #ffc44d;
+        font-family: 'Switzer, sans-serif';
+        margin-bottom: 15px;
+    }
+    #top-books-container ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    #top-books-container li {
+        margin-bottom: 10px;
+        font-family: 'Switzer, sans-serif';
+    }
+    .tab-container {
+        margin: 20px 0;
+    }
+    .tab-buttons {
+        display: flex;
+        border-bottom: 2px solid #ddd;
+    }
+    .tab-button {
+        padding: 10px 20px;
+        cursor: pointer;
+        background-color: #ffc44d;
+        border: 1px solid #ddd;
+        border-bottom: none;
+        margin-right: 5px;
+    }
+    .tab-button.active {
+        background-color: #101211;
+        border-top: 2px solid #ffc44d;
+    }
+    .tab-content {
+        display: none;
+        padding: 20px;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    #records-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        border-radius: 20px;
+    }
+    #records-table th, #records-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    #records-table th {
+        background-color: #101211;
+    }
+    .print-btn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #ffc44d;
+        border: none;
+        cursor: pointer;
+    }
+    @media print {
+        .dashboard-container, .tab-buttons, .print-btn, .stats-grid, .model-grid, .tab-container > div:not(#records-tab) {
+            display: none;
+        }
+        #records-tab, #records-table {
+            display: block !important;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>{{ index_title }}</h1>
+        <p>Welcome, {{ user.email }}!</p>
+    </div>
+
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="dashboard-tab">Dashboard</button>
+            <button class="tab-button" data-tab="records-tab">Records</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard-tab" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3><i class="fas fa-users"></i> Total Users</h3>
+                    <p class="stat-value">{{ total_users }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-file-alt"></i> Total Documents Uploaded</h3>
+                    <p class="stat-value">{{ total_documents }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-clone"></i> Total Flashcards Generated</h3>
+                    <p class="stat-value">{{ total_flashcards }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-upload"></i> Documents Uploaded Today</h3>
+                    <p class="stat-value">{{ documents_today }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-clone"></i> Flashcards Generated Today</h3>
+                    <p class="stat-value">{{ flashcards_today }}</p>
+                </div>
+                <div class="stat-card">
+                    <h3><i class="fas fa-question-circle"></i> MCQs Generated Today</h3>
+                    <p class="stat-value">{{ MCQ_today }}</p>
+                </div>
+            </div>
+
+            <div class="model-grid">
+                {% for app in app_list %}
+                {% for model in app.models %}
+                <div class="model-card">
+                    <h2>
+                        {% if model.name == "Users" %}
+                        <i class="fas fa-users"></i>
+                        {% elif model.name == "Tbl_documents" %}
+                        <i class="fas fa-file-alt"></i>
+                        {% elif model.name == "Log entrys" %}
+                        <i class="fa fa-address-book"></i>
+                        {% elif model.name == "Flashcards" %}
+                        <i class="fas fa-clone"></i>
+                        {% elif model.name == "Mcqs" %}
+                        <i class="fas fa-question-circle"></i>
+                        {% elif model.name == "Tbl_flashcustoms" %}
+                        <i class="fas fa-paint-brush"></i>
+                        {% elif model.name == "Custom profiles" %}
+                        <i class="fas fa-user-circle"></i>
+                        {% endif %}
+                        {{ model.name }}
+                    </h2>
+                    <p>Total Records: {{ model.object_count }}</p>
+                    <a href="{{ model.admin_url }}" class="action-btn">
+                        <i class="fas fa-cog"></i> Manage
+                    </a>
+                </div>
+                {% endfor %}
+                {% endfor %}
+            </div>
+
+            {% if dates %}
+            <div style="text-align: center; margin: 20px;">
+                <label for="timeFilter">Filter by Time: </label>
+                <select id="timeFilter" style="padding: 5px; font-size: 14px;">
+                    <option value="1week">1 Week</option>
+                    <option value="1month">1 Month</option>
+                    <option value="3months">3 Months</option>
+                    <option value="6months">6 Months</option>
+                    <option value="1year">1 Year</option>
+                    <option value="all" selected>All Time</option>
+                </select>
+            </div>
+
+            <div style="display: flex; flex-direction: row; justify-content: center; gap: 20px; flex-wrap: wrap; padding: 20px; width: 100%; box-sizing: border-box;">
+                <div class="model-card" id="bar-graph-container"
+                    style="flex: 1; min-width: 400px; max-width: 600px; height: 500px; transform: translateY(20px); opacity: 0; transition: all 0.8s ease;">
+                    <canvas id="flashcardChart"></canvas>
+                </div>
+                <div class="model-card" id="line-graph-container"
+                    style="flex: 1; min-width: 400px; max-width: 600px; height: 500px; transform: translateY(20px); opacity: 0; transition: all 0.8s ease;">
+                    <canvas id="dateChart"></canvas>
+                </div>
+                <div class="model-card" id="pie-graph-container"
+                    style="flex: 1; min-width: 400px; max-width: 600px; height: 500px; transform: translateY(20px); opacity: 0; transition: all 0.8s ease;">
+                    <canvas id="actionChart"></canvas>
+                </div>
+                <div class="model-card" id="top-books-container"
+                    style="flex: 1; min-width: 400px; max-width: 600px; transform: translateY(20px); opacity: 0; transition: all 0.8s ease;">
+                    <h3>Top 3 Books by Usage</h3>
+                    <ul>
+                        {% for doc in top_documents %}
+                        <li>{{ doc.title }} by {{ doc.author }} (Used {{ doc.count }} times)</li>
+                        {% empty %}
+                        <li>No documents found.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% else %}
+            <p>No data available to generate graphs.</p>
+            {% endif %}
+        </div>
+
+        <!-- Records Tab -->
+        <div id="records-tab" class="tab-content">
+            <div style="text-align: center; margin: 20px;">
+                <label for="modelSelector">Select Model: </label>
+                <select id="modelSelector">
+                    <option value="user">Users</option>
+                    <option value="document">Documents</option>
+                    <option value="logentry">Log Entries</option>
+                    <option value="flashcard">Flashcards</option>
+                    <option value="mcq">MCQs</option>
+                    <option value="flashcustom">Flashcard Customs</option>
+                    <option value="customprofile">Custom Profiles</option>
+                </select>
+                <label for="recordsTimeFilter" style="margin-left: 20px;">Filter by Time: </label>
+                <select id="recordsTimeFilter">
+                    <option value="1week">1 Week</option>
+                    <option value="1month">1 Month</option>
+                    <option value="3months">3 Months</option>
+                    <option value="6months">6 Months</option>
+                    <option value="1year">1 Year</option>
+                    <option value="all" selected>All Time</option>
+                </select>
+            </div>
+            <table id="records-table">
+                <thead id="records-table-header"></thead>
+                <tbody id="records-table-body"></tbody>
+            </table>
+            <button class="print-btn" onclick="printRecords()">Print Records</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Dashboard Chart Data
+        const today = new Date('{{ today|safe }}');
+        const fullDates = {{ dates|safe }};
+        const fullCountByDate = {{ count_by_date|safe }};
+        const fullDateData = {{ date_data|safe }};
+        const fullActionData = {{ action_data|safe }};
+        console.log('Top Documents:', {{ top_documents|safe }});
+
+        // Records Data
+        const userRecords = {{ user_records|safe }};
+        const documentRecords = {{ document_records|safe }};
+        const logentryRecords = {{ logentry_records|safe }};
+        const flashcardRecords = {{ flashcard_records|safe }};
+        const mcqRecords = {{ mcq_records|safe }};
+        const flashcustomRecords = {{ flashcustom_records|safe }};
+        const customprofileRecords = {{ customprofile_records|safe }};
+        const allRecords = {
+            user: userRecords,
+            document: documentRecords,
+            logentry: logentryRecords,
+            flashcard: flashcardRecords,
+            mcq: mcqRecords,
+            flashcustom: flashcustomRecords,
+            customprofile: customprofileRecords
+        };
+
+        // Initialize charts
+        let barChart, lineChart, pieChart;
+
+        function filterChartData(range) {
+            const filterDate = new Date(today);
+            let filteredCountByDate = {};
+            let filteredDateData = { labels: [], flashcards: [], mcqs: [] };
+            let filteredActionData = { labels: fullActionData.labels.slice(), counts: fullActionData.counts.slice() };
+
+            switch (range) {
+                case '1week': filterDate.setDate(today.getDate() - 7); break;
+                case '1month': filterDate.setMonth(today.getMonth() - 1); break;
+                case '3months': filterDate.setMonth(today.getMonth() - 3); break;
+                case '6months': filterDate.setMonth(today.getMonth() - 6); break;
+                case '1year': filterDate.setFullYear(today.getFullYear() - 1); break;
+                case 'all': filterDate.setFullYear(1970, 0, 1); break;
+            }
+
+            for (const date in fullCountByDate) {
+                const dateObj = new Date(date);
+                if (dateObj >= filterDate) {
+                    filteredCountByDate[date] = fullCountByDate[date];
+                }
+            }
+
+            fullDateData.labels.forEach((date, index) => {
+                const dateObj = new Date(date);
+                if (dateObj >= filterDate) {
+                    filteredDateData.labels.push(date);
+                    filteredDateData.flashcards.push(fullDateData.flashcards[index]);
+                    filteredDateData.mcqs.push(fullDateData.mcqs[index]);
+                }
+            });
+
+            if (Object.keys(filteredCountByDate).length === 0) {
+                filteredCountByDate[today.toISOString().split('T')[0]] = 0;
+            }
+            if (filteredDateData.labels.length === 0) {
+                filteredDateData.labels = [today.toISOString().split('T')[0]];
+                filteredDateData.flashcards = [0];
+                filteredDateData.mcqs = [0];
+            }
+            if (filteredActionData.labels.length === 0) {
+                filteredActionData.labels = ['No Actions'];
+                filteredActionData.counts = [1];
+            }
+
+            return { filteredCountByDate, filteredDateData, filteredActionData };
+        }
+
+        function updateCharts(range) {
+            const { filteredCountByDate, filteredDateData, filteredActionData } = filterChartData(range);
+
+            if (barChart) barChart.destroy();
+            const barCanvas = document.getElementById('flashcardChart');
+            if (barCanvas) {
+                const barCtx = barCanvas.getContext('2d');
+                barChart = new Chart(barCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(filteredCountByDate),
+                        datasets: [{
+                            label: 'Number of Flashcards',
+                            data: Object.values(filteredCountByDate),
+                            backgroundColor: '#ffc44d',
+                            borderColor: 'black',
+                            borderWidth: 3,
+                            borderRadius: 20,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: '📊 Flashcards Created Over Time', font: { size: 16, family: 'Switzer, sans-serif' }, color: '#ffc44d' },
+                            legend: { display: false }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'Date', color: '#ffc44d', font: { family: 'Switzer, sans-serif', size: 12 } }, ticks: { color: '#ffc44d', maxRotation: 45, minRotation: 45 } },
+                            y: { title: { display: true, text: 'Number of Flashcards', color: '#ffc44d', font: { family: 'Switzer, sans-serif', size: 18 } }, ticks: { color: '#ffc44d', stepSize: 1, callback: value => Math.floor(value) }, beginAtZero: true }
+                        },
+                        layout: { padding: { left: 40, right: 40, top: 40, bottom: 40 } }
+                    }
+                });
+            }
+
+            if (lineChart) lineChart.destroy();
+            const lineCanvas = document.getElementById('dateChart');
+            if (lineCanvas) {
+                const lineCtx = lineCanvas.getContext('2d');
+                lineChart = new Chart(lineCtx, {
+                    type: 'line',
+                    data: {
+                        labels: filteredDateData.labels,
+                        datasets: [
+                            { label: 'Flashcards', data: filteredDateData.flashcards, borderColor: '#ffc44d', backgroundColor: 'rgba(255,196,77,0.2)', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#ffc44d', borderWidth: 3 },
+                            { label: 'Multiple Choice Questions', data: filteredDateData.mcqs, borderColor: '#ff6384', backgroundColor: 'rgba(255,99,132,0.2)', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#ff6384', borderWidth: 3 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: '📈 Flashcards vs MCQs Over Time', font: { size: 16, family: 'Switzer, sans-serif' }, color: '#ffc44d' },
+                            legend: { display: true, position: 'top', labels: { font: { family: 'Switzer, sans-serif', size: 12 }, color: '#ffc44d' } }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'Date', color: '#ffc44d', font: { family: 'Switzer, sans-serif', size: 12 } }, ticks: { color: '#ffc44d', maxRotation: 45, minRotation: 45 } },
+                            y: { title: { display: true, text: 'Count', color: '#ffc44d', font: { family: 'Switzer, sans-serif', size: 18 } }, ticks: { color: '#ffc44d', stepSize: 1, callback: value => Math.floor(value) }, beginAtZero: true }
+                        },
+                        layout: { padding: { left: 40, right: 40, top: 40, bottom: 40 } }
+                    }
+                });
+            }
+
+            if (pieChart) pieChart.destroy();
+            const pieCanvas = document.getElementById('actionChart');
+            if (pieCanvas) {
+                const pieCtx = pieCanvas.getContext('2d');
+                pieChart = new Chart(pieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: filteredActionData.labels,
+                        datasets: [{
+                            data: filteredActionData.counts,
+                            backgroundColor: ['#ffc44d', '#ff6384', '#36a2eb', '#cc65fe', '#ffce56', '#4bc0c0', '#9966ff', '#ff9f40'],
+                            borderColor: 'black',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: '🥧 Log Entries by Action Type', font: { size: 16, family: 'Switzer, sans-serif' }, color: '#ffc44d' },
+                            legend: { display: true, position: 'top', labels: { font: { family: 'Switzer, sans-serif', size: 12 }, color: '#ffc44d' } }
+                        },
+                        layout: { padding: { left: 40, right: 40, top: 40, bottom: 40 } }
+                    }
+                });
+            }
+        }
+
+        // Records Table Logic
+        const modelSelector = document.getElementById('modelSelector');
+        const timeFilter = document.getElementById('recordsTimeFilter');
+        const tableHeader = document.getElementById('records-table-header');
+        const tableBody = document.getElementById('records-table-body');
+        function printRecords() {
+            const recordsTab = document.getElementById('records-tab');
+            const originalContent = document.body.innerHTML;
+        
+            // Temporarily set the records tab as the only visible content
+            document.body.innerHTML = recordsTab.innerHTML;
+        
+            // Trigger print
+            window.print();
+        
+            // Restore original content
+            document.body.innerHTML = originalContent;
+            location.reload(); // Ensure everything is reloaded correctly
+        }
+        
+        function updateRecordsTable() {
+            const model = modelSelector.value;
+            const range = timeFilter.value;
+            const filterDate = new Date(today);
+
+            switch (range) {
+                case '1week': filterDate.setDate(today.getDate() - 7); break;
+                case '1month': filterDate.setMonth(today.getMonth() - 1); break;
+                case '3months': filterDate.setMonth(today.getMonth() - 3); break;
+                case '6months': filterDate.setMonth(today.getMonth() - 6); break;
+                case '1year': filterDate.setFullYear(today.getFullYear() - 1); break;
+                case 'all': filterDate.setFullYear(1970, 0, 1); break;
+            }
+
+            let headers, records;
+            switch (model) {
+                case 'user':
+                    headers = ['ID', 'Name', 'Email', 'Join Date'];
+                    records = allRecords.user.filter(r => new Date(r.date) >= filterDate);
+                    break;
+                case 'document':
+                    headers = ['ID', 'Title', 'Author', 'Upload Date'];
+                    records = allRecords.document.filter(r => new Date(r.date) >= filterDate);
+                    break;
+                case 'logentry':
+                    headers = ['ID', 'User ID', 'Action Type', 'Action Date'];
+                    records = allRecords.logentry.filter(r => new Date(r.date) >= filterDate);
+                    break;
+                case 'flashcard':
+                    headers = ['ID', 'Document ID', 'Student', 'Created Date'];
+                    records = allRecords.flashcard.filter(r => new Date(r.date) >= filterDate);
+                    break;
+                case 'mcq':
+                    headers = ['ID', 'Document ID', 'Student', 'Created Date'];
+                    records = allRecords.mcq.filter(r => new Date(r.date) >= filterDate);
+                    break;
+                case 'flashcustom':
+                    headers = ['ID', 'Style Name', 'User ID', 'Creation Date'];
+                    records = allRecords.flashcustom.filter(r => new Date(r.date) >= filterDate);
+                    break;
+                case 'customprofile':
+                    headers = ['ID', 'User', 'Theme Preference', 'Last Updated'];
+                    records = allRecords.customprofile.filter(r => new Date(r.date) >= filterDate);
+                    break;
+            }
+
+            tableHeader.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+            tableBody.innerHTML = records.length ? records.map(r => `
+                <tr>
+                    <td>${r.id}</td>
+                    <td>${model === 'user' ? r.name : (model === 'document' ? r.title : (model === 'logentry' ? r.uid : (model === 'flashcard' || model === 'mcq' ? r.document_id : (model === 'flashcustom' ? r.style_name : r.user))))}</td>
+                    <td>${model === 'user' ? r.email : (model === 'document' ? r.author : (model === 'logentry' ? r.action_type : (model === 'flashcard' || model === 'mcq' ? r.student : (model === 'flashcustom' ? r.uid : r.theme))))}</td>
+                    <td>${r.date}</td>
+                </tr>
+            `).join('') : '<tr><td colspan="4">No records found.</td></tr>';
+        }
+
+        // Event Listeners
+        document.getElementById('timeFilter').addEventListener('change', function() {
+            updateCharts(this.value);
+        });
+        modelSelector.addEventListener('change', updateRecordsTable);
+        timeFilter.addEventListener('change', updateRecordsTable);
+
+        // Initial Render
+        updateCharts('all');
+        updateRecordsTable();
+
+        // Animation for dashboard containers
+        ['bar-graph-container', 'line-graph-container', 'pie-graph-container', 'top-books-container'].forEach(id => {
+            const container = document.getElementById(id);
+            if (container) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.transform = 'translateY(0)';
+                            entry.target.style.opacity = '1';
+                        }
+                    });
+                });
+                observer.observe(container);
+            }
+        });
+    </script>
+</div>
+{% endblock %}
+
+
+
+
+prompt="customizse this code for better layout and better styling try to add newer elements if needed and only use colour:root {
+    --900: #101211;
+    --100: white;
+    --accent-light: #fff0d1;
+    --400: #dbdbdb;
+    --700: #202221;
+    --600: #2e3130;
+    --300: #ebebeb;
+    --800: #171918;
+    --accent: #ffc44d;
+    --accent-medium: #ffda8f;
+    --200: #f7f7f7;
+} 
+don't use react 
+"
