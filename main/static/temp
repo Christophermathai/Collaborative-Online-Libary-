@@ -1,0 +1,29 @@
+ <label style="color:var(--accent);">Style Name</label>
+                <input type="text" class="text-input w-input" placeholder="Enter Style Name:" name="Sname" style="color:var(--accent);">
+              </div>
+          
+              <!-- Pick a Background Color -->
+              <div class="grid-item">
+                <label style="color:var(--accent);">Pick a Background Color</label>
+                <input type="color" id="bgColorPicker" class="text-input w-input">
+              </div>
+          
+              <!-- Pick a Text Color -->
+              <div class="grid-item">
+                <label style="color:var(--accent);">Pick a Text Color</label>
+                <input type="color" id="textColorPicker" class="text-input w-input">
+              </div>
+          
+              <!-- Choose a Font -->
+              <div class="grid-item">
+                <label for="fontSelect" style="color:var(--accent);">Choose a Font:</label>
+                <select id="fontSelect" class="text-input w-input">
+                  <option value="Arial">Arial</option>
+                  <option value="Verdana">Verdana</option>
+                  <option value="Tahoma">Tahoma</option>
+                  <option value="Trebuchet MS">Trebuchet MS</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                  <option value="Courier New">Courier New</option>
+                  <option value="Lucida Console">Lucida Console</option>
+                </select>
