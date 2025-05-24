@@ -36,13 +36,6 @@ This project aims to foster an engaging, resourceful, and collaborative academic
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) (for JavaScript components)
-- [Python 3](https://python.org/) (for AI utilities)
-- [MySQL](https://www.mysql.com/) (for persistent storage)
-- [Django](https://www.djangoproject.com/) (backend, if used)
-- [CodeIgniter](https://codeigniter.com/) (if PHP components are used)
 
 ### Installation
 
@@ -52,31 +45,11 @@ This project aims to foster an engaging, resourceful, and collaborative academic
    cd Collaborative-Online-Libary-
    ```
 
-2. **Install dependencies**
-   - For JavaScript:
-     ```bash
-     npm install
-     ```
-   - For Python (AI features):
-     ```bash
-     pip install -r requirements.txt
-     ```
-   - Set up your MySQL database and update credentials in the backend config files.
-
-3. **Run the application**
-   - Start backend server (`Django`/`CodeIgniter`/custom backend)
-   - Start frontend server
-     ```bash
-     npm start
-     ```
-
----
-
 ## 🛠️ Tech Stack
 
 - **Frontend:** JavaScript, HTML5, CSS3
 - **Backend:** Python (Django ORM), PHP (CodeIgniter MVC)
-- **Database:** MySQL
+- **Database:** SqLite
 - **AI & Utilities:** Python for prompt engineering, summarization, translation, voice-to-text, and quiz generation
 - **Other:** Excel (for analytics and exports), REST APIs
 
