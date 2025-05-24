@@ -125,16 +125,6 @@ Ernakulam, Kerala, India
 
 ---
 
-## 🏆 Achievements & Recognition
-
-- Presented at ICAET 2025: "Advancements in Medical Robotics Powered by AI"
-- National conference paper: “AI-generated Deepfakes and Cyber Threats” (2023)
-- Winner, Code Crafters, CASCADE 2025 (Cochin Arts and Science College)
-- Multiple runner-up awards at TecXell (MITS, Ernakulam)
-- Active volunteer at INCEPTRA 2024 & 2025
-
----
-
 ## 🤝 Acknowledgements
 
 Thanks to all contributors and reviewers who help make this platform better for students everywhere!
